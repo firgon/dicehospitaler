@@ -1,0 +1,387 @@
+/**
+ *------
+ * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
+ * DiceHospitalER implementation : © <Firgon> <emmanuel.albisser@gmail.com>
+ *
+ * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
+ * See http://en.boardgamearena.com/#!doc/Studio for more information.
+ * -----
+ *
+ * dicehospitaler.css
+ *
+ * DiceHospitalER stylesheet
+ *
+ */
+
+/*
+    This is the CSS stylesheet of your game User Interface.
+    
+    Styles defined on this file will be applied to the HTML elements you define in your
+    HTML template (dicehospitaler_dicehospitaler.tpl), and to HTML elements you create dynamically
+    (in dicehospitaler.js).
+    
+    Usually, you are using CSS to:
+    
+    1°) define the overall layout of your game
+        (ex: place the board on the top left, place player's hand beside, place the deck on the right, ...).
+
+    2°) create your CSS-sprites:
+        All images of your games should be gathered into a small number of image files. Then, using
+        background-image and background-position CSS properties, you create HTML blocks that can 
+        display these images correctly (see example below).
+    
+    3°) ... anything else:
+        It is really easy to add and remove CSS classes dynamically from your Javascript with
+        dojo.addClass and dojo.removeClass. It is also easy to check if an element has a class
+        (dojo.hasClass) or to get all elements with a specific class (dojo.query). This is why,
+        very often, using CSS classes for the logic of your user interface allow you to do complex
+        thing easily.
+        
+        
+     Note: on the production platform, this file will be compressed and comments will be removed.
+           Consequently, don't hesitate to put as many comments as necessary.
+*/
+
+
+/* Note: you must not use any @import directive */
+
+
+/********* You can start writing your CSS below this line: **********/
+#dher_table{
+    display: flex;
+    justify-content: space-evenly;
+    
+    flex-wrap: wrap;
+}
+
+#sheets {
+    display: inline-block;
+}
+
+.sheet {
+    position: relative;
+    background-image: url('img/sheet.png');
+    width: 621px;
+    height: 845px;
+}
+
+.button{
+    margin: 5px;
+    padding: 5px;
+}
+
+.hex {
+    border-radius: 40%;
+    text-align: center;
+    font-size: xx-large;
+    line-height: 50px;
+}
+
+.hex.active {
+    background-color: orange;
+    border-color: orange;
+    color: red;
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+.hex.critical::after {
+    content: "!";
+}
+
+.hex.screen {
+    background-image: url(img/screen.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-y: center;
+}
+
+.hex.active-screen {
+    background-color: greenyellow;
+    opacity: 0.6;
+    cursor: pointer;
+    background-image: url(img/active-screen.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-y: center;
+}
+
+.hex.virtual-screen {
+    
+    background-image: url(img/virtual-screen.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-y: center;
+}
+
+.epidemiologist_rooms {
+    color:darkcyan;
+}
+
+.radiologist_rooms {
+    text-decoration: underline;
+    text-decoration-color: goldenrod;
+}
+
+.circle.used{
+    background-image: url(img/used.png);
+    background-size: contain;
+    
+    background-position-x: 4px;
+    background-repeat: no-repeat;
+    background-position-y: center;
+}
+
+.circle.virtual_used{
+    background-image: url(img/virtual-used.png);
+    background-size: contain;
+    background-position-x: 4px;
+    background-repeat: no-repeat;
+    background-position-y: center;
+    opacity: 75%;
+}
+
+.ward {
+    height: 50px;
+    width: 65px;
+}
+
+.ward.ended{
+    background: url(img/PencilTick.png) top left/50% no-repeat;
+}
+
+.ward.ended.nurse-taken{
+    background: url(img/used.png) right/50% no-repeat, url(img/PencilTick.png) top left/50% no-repeat;
+    
+    /*background-position: 31px 3px;*/
+}
+
+.ward.nurse-taken{
+    background: url(img/used.png) right/50% no-repeat;
+}
+
+
+
+.counter{
+    position: absolute;
+    width: 50px;
+    font-size: x-large;
+    text-align: center;
+    top: 791px;
+}
+
+.counter.wards{
+    left: 42px;
+}
+.counter.critical{
+    left:103px;
+}
+.counter.nurses{
+    left: 176px;
+    letter-spacing: -2px;
+}
+.counter.cardiologist_1{
+    left: 240px;
+}
+
+.counter.cardiologist_2{
+    left: 265px;
+}
+
+.counter.radiologist{
+    left: 327px;
+}
+
+.counter.epidemiologist{
+    left: 392px;
+    letter-spacing: -2px;
+}
+
+.counter.dead{
+    left: 458px;
+}
+.counter.total{
+    left: 520px;
+}
+
+#game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#deck {
+    background-position: -1125px -1650px;
+}
+
+.ambulance_card {
+    display: inline-block;
+    position: relative;
+    width: 375px;
+    height: 275px;
+    background-image: url("img/ambulancecards.png");
+
+    border-radius: 10px;
+
+    -moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    -webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    -o-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=134, Strength=30); 
+}
+
+.specialist_card {
+    display: inline-block;
+    position: relative;
+    height: 225px;
+    width: 165px;
+    background-image: url("img/specialistcards.png");
+    background-repeat: no-repeat;
+
+    border-radius: 10px;
+
+    -moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    -webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    -o-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.4);
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=134, Strength=30); 
+}
+
+.specialist_card.used{
+    -webkit-filter: grayscale(100%); /* Pour les navigateurs Chrome, Safari, Opera */
+    filter: grayscale(100%); /* Firefox */
+        cursor: default;
+        opacity: 50%;
+}
+
+#deckinfo {
+    background: #fff;
+    border: 2px solid red;
+    border-radius: 50%;
+    color: #000;
+    font-weight: 700;
+    margin-left: -28px;
+    margin-top: -29px;
+    min-width: 14px;
+    overflow: visible;
+    padding-right: 3px;
+    padding-left: 3px;
+    position: absolute;
+    text-align: center;
+    top: 100%;
+    left: 100%;
+    z-index: 5;
+}
+
+#dice{
+    display: inline-block;
+    position: relative;
+    width: 375px;
+    height: 130px;
+}
+
+#dice2{
+    display: inline-block;
+    visibility: hidden;
+    position: relative;
+    width: 375px;
+    height: 160px;
+}
+
+.bonus {
+    position: absolute;
+    width: 108px;
+    height: 200px;
+    top: 38px;
+}
+
+.red {
+    left:24px;
+    
+}
+
+.yellow{
+    left: 132px;
+    background-position-x: -216px;
+}
+
+.green{
+    left: 240px;
+    background-position-x: -108px;
+}
+
+.die{
+    background-image: url(img/dice.png);
+    height: 108px;
+    cursor: pointer;
+}
+
+.inactive{
+    -webkit-filter: grayscale(100%); /* Pour les navigateurs Chrome, Safari, Opera */
+filter: grayscale(100%); /* Firefox */
+    cursor: default;
+}
+
+.die.used{
+    -webkit-filter: grayscale(100%); /* Pour les navigateurs Chrome, Safari, Opera */
+    filter: grayscale(100%); /* Firefox */
+        cursor: default;
+        opacity: 20%;
+}
+
+.die.used.selected{
+    opacity: 100%;
+    filter: none;
+    -webkit-filter: none;
+}
+
+.selected{
+    
+    background-color: red;
+    border-radius: 26px;
+    
+
+ /*   -moz-box-shadow: 15px 15px 15px 0px rgba(197, 20, 20, 0.4);
+    -webkit-box-shadow: 15px 15px 15px 0px rgba(197, 20, 20, 0.4);
+    -o-box-shadow: 15px 15px 15px 0px rgba(197, 20, 20, 0.4);
+    box-shadow: 15px 15px 15px 0px rgba(197, 20, 20, 0.4);
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#c5141466, Direction=134, Strength=30); */
+}
+
+.circle{
+    height: 80%;
+    border: 5px solid black;
+    border-radius: 50%;
+}
+
+.virtual_circle{
+    height: 80%;
+    border: 5px solid rgba(255, 166, 0, 0.514);
+    border-radius: 50%;
+}
+
+.new{
+    border: 5px solid red;
+}
+
+/*
+    Example of CSS sprites (a black token and a white token, 20x20px each, embedded in the same "tokens.png" 40x20px image):
+
+    .white_token {
+        background-image: url('img/tokens.png');
+        background-position: 0px 0px;
+    }
+    .black_token {
+        background-image: url('img/tokens.png');
+        background-position: -20px 0px;
+    }
+    .token {
+        width: 20px;
+        height: 20px;
+        background-repeat: none;
+    }
+*/
+
+
+
+
