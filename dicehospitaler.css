@@ -63,6 +63,7 @@
     background-image: url('img/sheet.png');
     width: 621px;
     height: 845px;
+    margin: 5px;
 }
 
 .button{

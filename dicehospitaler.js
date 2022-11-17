@@ -70,18 +70,28 @@ function (dojo, declare) {
 
                 let player = gamedatas.players[player_id];
                 
+                if (player_id == this.virtual_id){
                     dojo.place( this.format_block( 'jstpl_sheet', {
                         player_id: player_id,
                         name: player['name'],
-                        display: (player_id == this.virtual_id)?"inline-block":"None"
+                        display: "inline-block",
                     } ) , 'sheets' );
+                }
+                else {
+                    dojo.place( this.format_block( 'jstpl_sheet', {
+                        player_id: player_id,
+                        name: player['name'],
+                        display: "inline-block",
+                    } ) , 'dher_table' );
+                }
+                    
 
                 //add a button to see an other sheet
-                if (player_id != this.virtual_id){
-                    dojo.place( this.format_block('jstpl_player_board', {player_id:player_id, voir:_("See their sheet")} ), 'player_board_'+player_id );
-                    dojo.connect ($('player_board_'+player_id), 'onmouseover', this, (e) => { this.displaySheet(player_id); } );
-                    dojo.connect ($('player_board_'+player_id), 'onmouseout', this, (e) => { this.hideSheet(player_id); } );
-                }
+                // if (player_id != this.virtual_id){
+                //     dojo.place( this.format_block('jstpl_player_board', {player_id:player_id, voir:_("See their sheet")} ), 'player_board_'+player_id );
+                //     dojo.connect ($('player_board_'+player_id), 'onmouseover', this, (e) => { this.displaySheet(player_id); } );
+                //     dojo.connect ($('player_board_'+player_id), 'onmouseout', this, (e) => { this.hideSheet(player_id); } );
+                // }
 
                 //prepare all places :
                 this.prepareAllHexs(player_id);
@@ -647,7 +657,6 @@ function (dojo, declare) {
             displayEpidemiologistRooms: function(player_id, good_rooms){
                 // function to highlight rooms that give points for epidemilogist
                 dojo.query('#sheet_'+player_id+' .epidemiologist_rooms').removeClass('epidemiologist_rooms');
-                
                     for (const room_id of good_rooms) {
                         let div = 'hex_'+player_id+'_'+room_id;
                         

@@ -99,6 +99,11 @@ class DiceHospitalER extends Table
         self::setGameStateInitialValue('R', bga_rand(1, 6));
         self::setGameStateInitialValue('G', bga_rand(1, 6));
         self::setGameStateInitialValue('Y', bga_rand(1, 6));
+        // little hack since i fix the epidemiologist 2 card
+        // $epid_card = bga_rand(0, 4);
+        // while ($epid_card == 2) {
+        //     $epid_card = bga_rand(0, 4);
+        // }
         self::setGameStateInitialValue('epidemiologist', bga_rand(0, 4));
         self::setGameStateInitialValue('radiologist', bga_rand(5, 9));
         self::setGameStateInitialValue('used_die', -1);
@@ -383,6 +388,7 @@ class DiceHospitalER extends Table
 
         //select adjacents hex not already used
         $adjacents = array_diff($this->getAllRealAdjacentHexs($room_id), $already_used_rooms);
+        $adjacents = array_intersect($adjacents, array_keys($roomsDB));
 
         //keep only matching adjacent (with same value)
         $matching_adjacents = $this->getAllRooms($value, $roomsDB, $adjacents);
@@ -409,15 +415,10 @@ class DiceHospitalER extends Table
     function getAllRooms($searched_value, $rooms, $rooms_selection = null)
     {
         $retour = [];
-        if ($rooms_selection == null)
-            foreach ($rooms as $room => $value) {
-                if ($searched_value == $value) $retour[] = $room;
-            }
-        else {
-            foreach ($rooms_selection as $room) {
-                $value = $rooms[$room] ?? 0;
-                if ($searched_value == $value) $retour[] = $room;
-            }
+        $rooms_for_search = $rooms_selection ?? array_keys($rooms);
+
+        foreach ($rooms_for_search as $roomId) {
+            if ($searched_value == $rooms[$roomId]) $retour[] = $roomId;
         }
         return $retour;
     }
@@ -537,9 +538,10 @@ class DiceHospitalER extends Table
 
                 foreach ($roomsDB as $room_id => $value) {
                     $row = floor($room_id / 100);
-                    foreach ($possible_adjacents[$row % 2] as $possible) {
-                        $room_id2 = $room_id + $possible;
-                        $room_id3 = $room_id2 + $possible;
+                    for ($i = 0; $i < 3; $i++) {
+                        $room_id2 = $room_id + $possible_adjacents[$row % 2][$i];
+                        $row2 = floor($room_id2 / 100);
+                        $room_id3 = $room_id2 + $possible_adjacents[$row2 % 2][$i];
                         $value2 = $roomsDB[$room_id2] ?? 0;
                         $value3 = $roomsDB[$room_id3] ?? 0;
                         if ($value == $value2 && $value == $value3 && $value != 0) {
@@ -627,14 +629,20 @@ class DiceHospitalER extends Table
 
                 $max = 0;
                 $min = 50;
+                $best_number = 0;
                 for ($i = 1; $i <= 6; $i++) {
                     if (array_key_exists($i, $infos)) {
                         $max = max($max, $infos[$i]);
+                        if ($max == $infos[$i]) $best_number = $i;
                         $min = min($min, $infos[$i]);
                     } else $min = 0;
                 }
                 $score = $max - $min;
 
+                $sql = "SELECT room_id, value FROM rooms WHERE player_id=$player_id";
+                $roomsDB = self::getCollectionFromDB($sql, true);
+
+                $good_rooms = $this->getAllRooms($best_number, $roomsDB);
 
                 $points = $score * $this->specialist_infos[$card_id]['VP'];
 
@@ -652,14 +660,14 @@ class DiceHospitalER extends Table
                             'player_id' => $player_id,
                             'player_name' => self::getCurrentPlayerName(),
                             'value' => $value,
-                            //'epidemiologist_rooms' => $good_rooms,
+                            'epidemiologist_rooms' => json_encode($good_rooms),
                         ));
                     } else {
                         self::notifyAllPlayers("scoreEpidemiologist", clienttranslate('${player_name} loses ${value} VP with Epidemiologist'), array(
                             'player_id' => $player_id,
                             'player_name' => self::getCurrentPlayerName(),
                             'value' => $value,
-                            //'epidemiologist_rooms' => $good_rooms,
+                            'epidemiologist_rooms' => json_encode($good_rooms),
                         ));
                     }
                 }

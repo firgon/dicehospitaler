@@ -108,7 +108,7 @@ $machinestates = array(
     ),
 
     ALICAT_TURN => array(
-        "name" => "otherPlayersTurn",
+        "name" => "alicatTurn",
         "description" => clienttranslate('Other players must choose a die'),
         "descriptionmyturn" => clienttranslate('${you} must choose a die'),
         "type" => "game",
