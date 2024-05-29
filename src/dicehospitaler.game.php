@@ -88,7 +88,7 @@ class DiceHospitalER extends Table
                 self::DbQuery($requete);
             }
         }
-        $sql .= implode($values, ',');
+        $sql .= implode(',', $values);
         self::DbQuery($sql);
         self::reattributeColorsBasedOnPreferences($players, $gameinfos['player_colors']);
         self::reloadPlayersBasicInfos();
@@ -418,7 +418,7 @@ class DiceHospitalER extends Table
         $rooms_for_search = $rooms_selection ?? array_keys($rooms);
 
         foreach ($rooms_for_search as $roomId) {
-            if ($searched_value == $rooms[$roomId]) $retour[] = $roomId;
+            if (in_array($roomId, $rooms) && $searched_value == $rooms[$roomId]) $retour[] = $roomId;
         }
         return $retour;
     }
