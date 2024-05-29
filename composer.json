@@ -1,0 +1,29 @@
+{
+	"require-dev": {
+		"swhawk/bga-phpunit": "*",
+		"phpunit/phpunit": "^9.6.0"
+	},
+	"repositories": [
+		{
+		  "type": "package",
+		  "package": {
+			"name": "swhawk/bga-phpunit",
+			"version": "master",
+			"type": "package",
+			"source": {
+				"url": "https://gitlab.swhawk.eu/silver/bga-phpunit.git",
+				"type": "git",
+				"reference": "master"
+			}
+		  }
+		}
+	  ],
+	"minimum-stability": "dev",
+	"autoload": {
+		"classmap": [
+			"src/",
+			"tests/",
+			"vendor/swhawk/bga-phpunit/src/"
+		]
+	}
+}
