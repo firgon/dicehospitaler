@@ -414,13 +414,10 @@ class DiceHospitalER extends Table
     //get all room with value in rooms (id=>value) must be in rooms selection if this is not null
     function getAllRooms($searched_value, $rooms, $rooms_selection = null)
     {
-        $retour = [];
         $rooms_for_search = $rooms_selection ?? array_keys($rooms);
 
-        foreach ($rooms_for_search as $roomId) {
-            if (in_array($roomId, $rooms) && $searched_value == $rooms[$roomId]) $retour[] = $roomId;
-        }
-        return $retour;
+        $filtered = array_filter($rooms, fn($value, $key) => in_array($key, $rooms_for_search) && $value == $searched_value, ARRAY_FILTER_USE_BOTH);
+        return array_keys($filtered);
     }
 
     //take a table of sets of rooms in parameters and return a table of sets of rooms without dupplicate sets
@@ -1648,6 +1645,54 @@ class DiceHospitalER extends Table
         }
 
         throw new feException("Zombie mode not supported at this game state: " . $statename);
+    }
+
+    // █████                              █████ █████                        
+    //░░███                              ░░███ ░░███                         
+    // ░███         ██████   ██████    ███████  ░███████  █████ ████  ███████
+    // ░███        ███░░███ ░░░░░███  ███░░███  ░███░░███░░███ ░███  ███░░███
+    // ░███       ░███ ░███  ███████ ░███ ░███  ░███ ░███ ░███ ░███ ░███ ░███
+    // ░███      █░███ ░███ ███░░███ ░███ ░███  ░███ ░███ ░███ ░███ ░███ ░███
+    // ███████████░░██████ ░░████████░░████████ ████████  ░░████████░░███████
+    //░░░░░░░░░░░  ░░░░░░   ░░░░░░░░  ░░░░░░░░ ░░░░░░░░    ░░░░░░░░  ░░░░░███
+    //                                                               ███ ░███
+    //                                                              ░░██████ 
+    //                                                               ░░░░░░  
+
+    public function test(){
+        $this->calculateEpidemiologistScore(2294365);
+    }
+
+    public function loadBugReportSQL(int $reportId, array $studioPlayers): void
+    {
+        $prodPlayers = $this->getObjectListFromDb("SELECT `player_id` FROM `player`", true);
+        $prodCount = count($prodPlayers);
+        $studioCount = count($studioPlayers);
+        if ($prodCount != $studioCount) {
+            throw new BgaVisibleSystemException("Incorrect player count (bug report has $prodCount players, studio table has $studioCount players)");
+        }
+
+        // SQL specific to your game
+        // For example, reset the current state if it's already game over
+        $sql = [
+            "UPDATE `global` SET `global_value` = 4 WHERE `global_id` = 1 AND `global_value` = 99"
+        ];
+        foreach ($prodPlayers as $index => $prodId) {
+            $studioId = $studioPlayers[$index];
+            // SQL common to all games
+            $sql[] = "UPDATE `player` SET `player_id` = $studioId WHERE `player_id` = $prodId";
+            $sql[] = "UPDATE `global` SET `global_value` = $studioId WHERE `global_value` = $prodId";
+            $sql[] = "UPDATE `stats` SET `stats_player_id` = $studioId WHERE `stats_player_id` = $prodId";
+
+            // SQL specific to your game
+            // $sql[] = "UPDATE `card` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
+            // $sql[] = "UPDATE `rooms` SET `my_column` = REPLACE(`my_column`, $prodId, $studioId)";
+            $sql[] = "UPDATE `rooms` SET `player_id` = $studioId WHERE `player_id` = $prodId";
+            $sql[] = "UPDATE `wards` SET `player_id` = $studioId WHERE `player_id` = $prodId";
+        }
+        foreach ($sql as $q) {
+            $this->DbQuery($q);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////:
