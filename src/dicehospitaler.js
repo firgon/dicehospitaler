@@ -1314,7 +1314,7 @@ define([
       }
     },
 
-    onWrite: function (evt, room_id, screenOK = false) {
+    onWrite: function (evt, room_id, confirmed = false) {
       console.log('onWrite')
 
       //Preventing default browser reaction
@@ -1334,6 +1334,7 @@ define([
       if (this.getSelectedDie() == '') return
 
       let selected_die = this.getSelectedDie()[0]
+      const ward_id = this.gamedatas.sheet['wards'].findIndex(x => x.hexs.some(y => y == room_id))
       if (dojo.hasClass('hex_' + this.player_id + '_' + room_id, 'active-screen')) {
         //if it's just a screen, record the "screen move"
         this.virtual['decoration'] = ''
@@ -1414,7 +1415,7 @@ define([
           )
         }
       } 
-      else if (this.virtual['decoration'] == 'screen' && !screenOK) {
+      else if (this.virtual['decoration'] == 'screen' && !confirmed) {
         //if screen has not be played (ask if it's normal)
         this.confirmationDialog(
           _('You are using screen and number at same place'),
@@ -1422,6 +1423,19 @@ define([
             this.onWrite(evt, room_id, true)
           }),
         )
+      } 
+      else if (
+        this.virtual['nb_nurses'] == 1 
+        && dojo.hasClass('ward_' + this.player_id + '_' + ward_id, 'nurse-taken') 
+        && !confirmed
+      ) {
+        //if nurse is about to be wasted (ask if it's normal)
+        this.confirmationDialog(
+            _('This ward\'s nurse is already taken'),
+            dojo.hitch(this, function () {
+              this.onWrite(evt, room_id, true)
+            }),
+          )
       }
       else {
         //finally else : normal move
