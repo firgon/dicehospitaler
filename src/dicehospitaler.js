@@ -901,9 +901,9 @@ define([
     },
 
     getSpecialistToolTip: function (card_id) {
-      if (card_id < 0) return _('This card is no longer active')
-      let card = this.gamedatas.specialist_infos[card_id]
-      return _(card.help)
+      let $ret = _(this.gamedatas.specialist_infos[Math.abs(card_id)].help); 
+      if (card_id < 0) $ret += '. ' + _('This card is no longer active')
+      return $ret;
     },
 
     updateCardsCount: function (num_card) {
