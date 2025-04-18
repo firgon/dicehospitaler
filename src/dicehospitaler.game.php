@@ -651,20 +651,18 @@ class DiceHospitalER extends Table
                     // Notify all players
                     $value = $points - $previous_points;
                     if ($value > 0) {
-                        self::notifyAllPlayers("scoreEpidemiologist", clienttranslate('${player_name} wins ${value} VP more with Epidemiologist'), array(
-                            'player_id' => $player_id,
-                            'player_name' => self::getCurrentPlayerName(),
-                            'value' => $value,
-                            'epidemiologist_rooms' => json_encode($good_rooms),
-                        ));
-                    } else {
-                        self::notifyAllPlayers("scoreEpidemiologist", clienttranslate('${player_name} loses ${value} VP with Epidemiologist'), array(
-                            'player_id' => $player_id,
-                            'player_name' => self::getCurrentPlayerName(),
-                            'value' => $value,
-                            'epidemiologist_rooms' => json_encode($good_rooms),
-                        ));
+                        $message = clienttranslate('${player_name} wins ${value} VP more with Epidemiologist');
                     }
+                    else {
+                        $message = clienttranslate('${player_name} loses ${value} VP with Epidemiologist');
+                    }
+                    
+                    self::notifyAllPlayers("scoreEpidemiologist", $message, array(
+                        'player_id' => $player_id,
+                        'player_name' => self::getCurrentPlayerName(),
+                        'value' => $value,
+                        'epidemiologist_rooms' => json_encode($good_rooms),
+                    ));
                 }
                 break;
 
@@ -739,7 +737,7 @@ class DiceHospitalER extends Table
 
         switch ($card_id) {
             case '10':
-            case '16';
+            case '16':
                 //gain 8 stetos
                 $sql = "SELECT player_id, player_name, nb_stetos, score_$cardiologist_id FROM player";
                 $infos = self::getCollectionFromDb($sql);
@@ -761,8 +759,6 @@ class DiceHospitalER extends Table
                         ));
                     }
                 }
-                break;
-
                 break;
             case '11':
             case '17':
