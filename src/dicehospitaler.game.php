@@ -1266,6 +1266,7 @@ class DiceHospitalER extends Table
 
         // Notify all players
         self::notifyAllPlayers("playerPassed", clienttranslate('${player_name} puts a patient ${die_color} into the morgue and loses ${value} VP'), array(
+            'i18n' => array('die_color'),
             'player_id' => $player_id,
             'player_name' => self::getCurrentPlayerName(),
             'value' => $loss,
@@ -1435,6 +1436,7 @@ class DiceHospitalER extends Table
         }
         // Notify all players
         self::notifyAllPlayers("playerPlayed", $message, array(
+            'i18n' => array('die_color'),
             'player_id' => $player_id,
             'player_name' => self::getCurrentPlayerName(),
             'value' => $value,
