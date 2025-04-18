@@ -206,23 +206,18 @@ define([
           'background-position',
           this.getCoordFromCardNb(-gamedatas.cardiologist_1, true),
         )
-        this.addTooltip(
-          'cardiologist_1',
-          this.getSpecialistToolTip(gamedatas.cardiologist_1),
-          '',
-        )
       } else {
         dojo.style(
           'cardiologist_1',
           'background-position',
           this.getCoordFromCardNb(gamedatas.cardiologist_1, true),
         )
-        this.addTooltip(
-          'cardiologist_1',
-          this.getSpecialistToolTip(gamedatas.cardiologist_1),
-          '',
-        )
       }
+      this.addTooltip(
+        'cardiologist_1',
+        this.getSpecialistToolTip(gamedatas.cardiologist_1),
+        '',
+      )
       if (gamedatas.cardiologist_2 < 0) {
         dojo.addClass('cardiologist_2', 'used')
         dojo.style(
@@ -230,24 +225,19 @@ define([
           'background-position',
           this.getCoordFromCardNb(-gamedatas.cardiologist_2, true),
         )
-        this.addTooltip(
-          'cardiologist_2',
-          this.getSpecialistToolTip(gamedatas.cardiologist_2),
-          '',
-        )
       } else {
         dojo.style(
           'cardiologist_2',
           'background-position',
           this.getCoordFromCardNb(gamedatas.cardiologist_2, true),
         )
-        this.addTooltip(
-          'cardiologist_2',
-          this.getSpecialistToolTip(gamedatas.cardiologist_2),
-          '',
-        )
       }
 
+      this.addTooltip(
+        'cardiologist_2',
+        this.getSpecialistToolTip(gamedatas.cardiologist_2),
+        '',
+      )
       this.deckinfo.create('deckinfo')
       this.deckinfo.setValue(gamedatas['cards_count'])
       this.addTooltip('deckinfo', _('Remaining cards'), '')
@@ -1343,18 +1333,61 @@ define([
         return false
       if (this.getSelectedDie() == '') return
 
-      if (
-        dojo.hasClass('hex_' + this.player_id + '_' + room_id, 'active-screen')
-      ) {
+      let selected_die = this.getSelectedDie()[0]
+      if (dojo.hasClass('hex_' + this.player_id + '_' + room_id, 'active-screen')) {
         //if it's just a screen, record the "screen move"
         this.virtual['decoration'] = ''
         this.virtual['screened_room'] = room_id
         //remove other active-screen
         dojo.query('.hex.active-screen').removeClass('active-screen')
         this.displayPossibleMoves()
-      } else {
+      } 
+      else if (dojo.query('.hex.virtual-screen') != '' && room_id != -1) {
         // else if it's a number AND a screen send it
-        if (dojo.query('.hex.virtual-screen') != '' && room_id != -1) {
+        this.ajaxcall(
+          '/dicehospitaler/dicehospitaler/play.html',
+          {
+            lock: true,
+            die: this.getSelectedType(), //indique quel de a ete choisi
+            room_id: room_id, //indique ou il faut marquer le resultat
+            value: $('hex_' + this.player_id + '_' + room_id).innerHTML, //indique la valeur a entrer
+            decoration: 'screen',
+            room_id2: this.virtual['screened_room'],
+          },
+          this,
+          function (result) {
+            // What to do after the server call if it succeeded
+            // (most of the time: nothing)
+          },
+          function (is_error) {
+            // What to do after the server call in anyway (success or failure)
+            // (most of the time: nothing)
+          },
+        )
+      }
+      else if (selected_die.id == 'extra_die' || selected_die.id == this.virtual['extra_die_source']) {
+        // else if "2 moves needed"
+        if (this.virtual['first_move'] == '') {
+          //record first move
+          let value = $('hex_' + this.player_id + '_' + room_id).innerHTML
+
+          this.virtual['first_room'] = room_id
+          this.virtual['first_value'] = value
+          this.virtual['first_move'] =
+            this.getSelectedType() + ' ' + value + ' ' + selected_die.id // "R 4 extra_die" or "Y 5 Yellow die"
+          //and reset modif (which has been used)
+          this.virtual['modif'] = 0
+
+          let other_die =
+            selected_die.id == 'extra_die'
+              ? this.virtual['extra_die_source']
+              : 'extra_die'
+
+          dojo.addClass(selected_die.id, 'inactive')
+          this.toggleExtraDieSource(other_die)
+          this.updateMoves()
+        } else {
+          //or send 2 moves
           this.ajaxcall(
             '/dicehospitaler/dicehospitaler/play.html',
             {
@@ -1362,8 +1395,12 @@ define([
               die: this.getSelectedType(), //indique quel de a ete choisi
               room_id: room_id, //indique ou il faut marquer le resultat
               value: $('hex_' + this.player_id + '_' + room_id).innerHTML, //indique la valeur a entrer
-              decoration: 'screen',
-              room_id2: this.virtual['screened_room'],
+              decoration: this.virtual['first_move'],
+              room_id2: this.virtual['first_room'],
+              extra_die_source: dojo.attr(
+                this.virtual['extra_die_source'],
+                'data-type',
+              ),
             },
             this,
             function (result) {
@@ -1375,92 +1412,38 @@ define([
               // (most of the time: nothing)
             },
           )
-        } else {
-          // else if "2 moves needed"
-          let selected_die = this.getSelectedDie()[0]
-          if (
-            selected_die.id == 'extra_die' ||
-            selected_die.id == this.virtual['extra_die_source']
-          ) {
-            if (this.virtual['first_move'] == '') {
-              //record first move
-              let value = $('hex_' + this.player_id + '_' + room_id).innerHTML
-
-              this.virtual['first_room'] = room_id
-              this.virtual['first_value'] = value
-              this.virtual['first_move'] =
-                this.getSelectedType() + ' ' + value + ' ' + selected_die.id // "R 4 extra_die" or "Y 5 Yellow die"
-              //and reset modif (which has been used)
-              this.virtual['modif'] = 0
-
-              let other_die =
-                selected_die.id == 'extra_die'
-                  ? this.virtual['extra_die_source']
-                  : 'extra_die'
-
-              dojo.addClass(selected_die.id, 'inactive')
-              this.toggleExtraDieSource(other_die)
-              this.updateMoves()
-            } else {
-              //or send 2 moves
-              this.ajaxcall(
-                '/dicehospitaler/dicehospitaler/play.html',
-                {
-                  lock: true,
-                  die: this.getSelectedType(), //indique quel de a ete choisi
-                  room_id: room_id, //indique ou il faut marquer le resultat
-                  value: $('hex_' + this.player_id + '_' + room_id).innerHTML, //indique la valeur a entrer
-                  decoration: this.virtual['first_move'],
-                  room_id2: this.virtual['first_room'],
-                  extra_die_source: dojo.attr(
-                    this.virtual['extra_die_source'],
-                    'data-type',
-                  ),
-                },
-                this,
-                function (result) {
-                  // What to do after the server call if it succeeded
-                  // (most of the time: nothing)
-                },
-                function (is_error) {
-                  // What to do after the server call in anyway (success or failure)
-                  // (most of the time: nothing)
-                },
-              )
-            }
-          } else {
-            //if screen has not be played (ask if it's normal)
-            if (this.virtual['decoration'] == 'screen' && !screenOK) {
-              this.confirmationDialog(
-                _('You are using screen and number at same place'),
-                dojo.hitch(this, function () {
-                  this.onWrite(evt, room_id, true)
-                }),
-              )
-            } else {
-              //finally else : normal move
-              this.ajaxcall(
-                '/dicehospitaler/dicehospitaler/play.html',
-                {
-                  lock: true,
-                  die: this.getSelectedType(), //indique quel de a ete choisi
-                  room_id: room_id, //indique ou il faut marquer le resultat
-                  value: $('hex_' + this.player_id + '_' + room_id).innerHTML, //indique la valeur a entrer
-                  decoration: this.virtual['decoration'],
-                },
-                this,
-                function (result) {
-                  // What to do after the server call if it succeeded
-                  // (most of the time: nothing)
-                },
-                function (is_error) {
-                  // What to do after the server call in anyway (success or failure)
-                  // (most of the time: nothing)
-                },
-              )
-            }
-          }
         }
+      } 
+      else if (this.virtual['decoration'] == 'screen' && !screenOK) {
+        //if screen has not be played (ask if it's normal)
+        this.confirmationDialog(
+          _('You are using screen and number at same place'),
+          dojo.hitch(this, function () {
+            this.onWrite(evt, room_id, true)
+          }),
+        )
+      }
+      else {
+        //finally else : normal move
+        this.ajaxcall(
+          '/dicehospitaler/dicehospitaler/play.html',
+          {
+            lock: true,
+            die: this.getSelectedType(), //indique quel de a ete choisi
+            room_id: room_id, //indique ou il faut marquer le resultat
+            value: $('hex_' + this.player_id + '_' + room_id).innerHTML, //indique la valeur a entrer
+            decoration: this.virtual['decoration'],
+          },
+          this,
+          function (result) {
+            // What to do after the server call if it succeeded
+            // (most of the time: nothing)
+          },
+          function (is_error) {
+            // What to do after the server call in anyway (success or failure)
+            // (most of the time: nothing)
+          },
+        )
       }
     },
 
